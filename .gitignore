@@ -48,6 +48,16 @@ training_*.log
 *.pt
 *.pth
 *.ckpt
+*.json
+*.safetensors
+*.sh
+model_outputs/
+
+# Model files
+model_outputs/**/*.pt
+model_outputs/**/*.pth
+model_outputs/**/*.ckpt
+model_outputs/**/*.safetensors
 
 # Keep essential files
 !src/training/train_rl.py
@@ -118,4 +128,8 @@ var/
 wheels/
 *.egg-info/
 .installed.cfg
-*.egg 
+*.egg
+
+# Large files and binary artifacts
+Miniconda3-latest-MacOSX-arm64.sh
+model_outputs/final_model/model.safetensors 
