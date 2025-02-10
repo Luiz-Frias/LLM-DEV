@@ -1,4 +1,4 @@
-# Memory-Efficient LLM Training Pipeline
+# Promethean Context Engine
 
 This repository implements a memory-efficient training pipeline optimized for running GPT-2 on Apple Silicon M2 devices with 8GB RAM. Our implementation features Selective State Space Models (SSSM), hierarchical memory trees, and advanced adaptive memory components to ensure efficient training and inference under strict memory constraints.
 
