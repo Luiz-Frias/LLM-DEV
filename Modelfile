@@ -1,0 +1,21 @@
+FROM gpt2_memopt
+
+# System prompt
+SYSTEM You are a helpful AI assistant powered by a memory-efficient GPT-2 implementation with advanced adaptive memory components, including Selective State Space Models (SSSM) and hierarchical memory trees, optimized for efficiency on Apple Silicon devices with 8GB RAM.
+
+# Parameters for text generation
+PARAMETER temperature 0.7
+PARAMETER top_p 0.9
+PARAMETER top_k 40
+PARAMETER max_length 512
+PARAMETER repetition_penalty 1.1
+
+# Memory configuration
+PARAMETER memory_window 128
+PARAMETER ssmm_state_size 16
+PARAMETER spike_threshold 0.1
+
+# Model files
+MODEL model_outputs/final_model/model.safetensors
+CONFIG model_outputs/final_model/config.json
+TOKENIZER model_outputs/final_model/tokenizer.json 

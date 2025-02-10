@@ -1,0 +1,169 @@
+# Data Sources and Training Curriculum
+
+## Primary Dataset
+
+### C4 (Colossal Clean Crawled Corpus)
+- **Source**: [C4 Dataset](https://huggingface.co/datasets/c4)
+- **Language**: English
+- **Size**: Configurable subset based on memory constraints
+- **Quality**: High-quality filtered web text
+- **Processing**: 
+  - Cleaned and normalized
+  - Filtered for content quality
+  - Maximum sequence length: 512 tokens
+  - Dynamic batch size (max 2 for 8GB RAM)
+
+## Curriculum Learning Phases
+
+### Phase 1: General Language Understanding (C4)
+- **Dataset**: C4 (en subset)
+- **Purpose**: Build foundational language understanding
+- **Features**:
+  - High-quality web text
+  - Diverse topics and styles
+  - Natural language patterns
+  - Real-world knowledge
+
+### Phase 2: Chain-of-Thought (CoT)
+- **Datasets**: 
+  - GSM8K (math reasoning)
+  - StrategyQA (strategic thinking)
+- **Purpose**: Enhance structured thinking and reasoning
+- **Features**:
+  - Step-by-step problem solving
+  - Explicit reasoning chains
+  - Complex problem decomposition
+
+## Memory-Efficient Data Loading
+
+### Streaming Implementation
+- Dynamic batch sampling
+- Memory-mapped caching
+- Efficient collation
+- Automatic garbage collection
+
+### Batch Processing
+- Hard cap at batch size 2
+- Gradient accumulation (4 steps)
+- Effective batch size: 8
+- Memory-aware adjustments
+
+## Data Quality Control
+
+### Filtering Criteria
+- Minimum sequence length: 10 tokens
+- Maximum sequence length: 512 tokens
+- Content quality metrics
+- Language detection
+
+### Processing Pipeline
+1. Text cleaning and normalization
+2. Quality filtering
+3. Length validation
+4. Tokenization
+5. Dynamic batching
+
+## Memory Management
+
+### Hierarchical Memory Tree
+- Adaptive splitting based on capacity
+- Efficient O(log n) operations
+- Predictive load balancing
+- Automatic rebalancing
+
+### Selective State Space Model (SSSM)
+- State space parameters
+- Selective updates
+- Spike thresholding
+- Continuous-time dynamics
+
+### Monolith Intake System
+- Batch processing
+- Salience calculation
+- Type validation
+- Memory optimization
+
+## Training Phases
+
+### Initial Training (C4)
+- **Duration**: 0-85% of total epochs
+- **Synthetic Ratio**: 20%
+- **Batch Size**: 2
+- **Learning Rate**: 2e-5 to 5e-5
+
+### CoT Fine-tuning
+- **Duration**: 85-100% of total epochs
+- **Synthetic Ratio**: Up to 90%
+- **Batch Size**: 2
+- **Learning Rate**: 1e-5 to 2e-5
+
+## Data Caching Strategy
+
+### Disk Cache
+- Dataset chunks
+- Memory-mapped files
+- Efficient streaming
+- Automatic cleanup
+
+### Memory Cache
+- Recent examples
+- High-salience items
+- Frequently accessed patterns
+- Dynamic size adjustment
+
+## Performance Metrics
+
+### Training
+- Examples per second: ~10-20
+- Memory usage: 6-7GB peak
+- Disk cache: ~1GB
+- GPU utilization: 80-90%
+
+### Inference
+- Latency: 50-100ms
+- Memory usage: 2-3GB
+- Throughput: 10-20 req/s
+- Context window: 512 tokens
+
+## License Compliance
+
+### Attribution Requirements
+- Wikipedia content maintains CC BY-SA 3.0 attribution
+- Project Gutenberg maintains original author attribution
+- Common Crawl follows terms of use guidelines
+
+### Usage Restrictions
+1. **Wikipedia**
+   - Share-alike requirement for derivatives
+   - Attribution required
+   - Commercial use permitted
+
+2. **Project Gutenberg**
+   - Public domain in the US
+   - Usage restrictions may apply in other countries
+   - Attribution recommended but not required
+
+3. **Common Crawl**
+   - No redistribution restrictions
+   - Attribution recommended
+   - Commercial use permitted
+
+## Quality Assurance
+
+### Validation Process
+1. License verification for each source
+2. Content quality assessment
+3. Bias detection and mitigation
+4. Regular dataset audits
+
+### Documentation Updates
+This document is updated when:
+- New data sources are added
+- Processing methodology changes
+- License terms are updated
+- Quality issues are discovered
+
+## Contact
+For questions about data sources or processing methodology, please use the GitHub Issues system.
+
+Last Updated: February 2024 
