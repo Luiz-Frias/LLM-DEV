@@ -1,4 +1,4 @@
-# Data Sources and Training Curriculum
+# Data Sources and Training Curriculum for Promethean Context Engine
 
 ## Primary Dataset
 
@@ -8,39 +8,40 @@
 - **Size**: Configurable subset based on memory constraints
 - **Quality**: High-quality filtered web text
 - **Processing**: 
-  - Cleaned and normalized
-  - Filtered for content quality
+  - Adaptive cleaning and normalization
+  - Predictive quality filtering
   - Maximum sequence length: 512 tokens
   - Dynamic batch size (max 2 for 8GB RAM)
 
-## Curriculum Learning Phases
+## Adaptive Learning Phases
 
-### Phase 1: General Language Understanding (C4)
+### Phase 1: Foundational Understanding (C4)
 - **Dataset**: C4 (en subset)
-- **Purpose**: Build foundational language understanding
+- **Purpose**: Build foundational knowledge base
 - **Features**:
   - High-quality web text
   - Diverse topics and styles
   - Natural language patterns
-  - Real-world knowledge
+  - Real-world knowledge acquisition
 
-### Phase 2: Chain-of-Thought (CoT)
+### Phase 2: Contextual Reasoning (CoT)
 - **Datasets**: 
-  - GSM8K (math reasoning)
+  - GSM8K (mathematical reasoning)
   - StrategyQA (strategic thinking)
-- **Purpose**: Enhance structured thinking and reasoning
+- **Purpose**: Enhance structured reasoning capabilities
 - **Features**:
-  - Step-by-step problem solving
+  - Step-by-step problem decomposition
   - Explicit reasoning chains
-  - Complex problem decomposition
+  - Complex problem solving
+  - Contextual understanding
 
-## Memory-Efficient Data Loading
+## Resource-Aware Data Loading
 
 ### Streaming Implementation
-- Dynamic batch sampling
+- Predictive batch sampling
 - Memory-mapped caching
 - Efficient collation
-- Automatic garbage collection
+- Automatic resource management
 
 ### Batch Processing
 - Hard cap at batch size 2
@@ -54,31 +55,31 @@
 - Minimum sequence length: 10 tokens
 - Maximum sequence length: 512 tokens
 - Content quality metrics
-- Language detection
+- Language validation
 
 ### Processing Pipeline
-1. Text cleaning and normalization
-2. Quality filtering
+1. Adaptive text cleaning
+2. Predictive quality filtering
 3. Length validation
-4. Tokenization
+4. Efficient tokenization
 5. Dynamic batching
 
 ## Memory Management
 
 ### Hierarchical Memory Tree
-- Adaptive splitting based on capacity
+- Predictive splitting based on capacity
 - Efficient O(log n) operations
-- Predictive load balancing
+- Adaptive load balancing
 - Automatic rebalancing
 
 ### Selective State Space Model (SSSM)
-- State space parameters
+- State space parameter optimization
 - Selective updates
 - Spike thresholding
 - Continuous-time dynamics
 
 ### Monolith Intake System
-- Batch processing
+- Predictive batch processing
 - Salience calculation
 - Type validation
 - Memory optimization
@@ -91,7 +92,7 @@
 - **Batch Size**: 2
 - **Learning Rate**: 2e-5 to 5e-5
 
-### CoT Fine-tuning
+### Contextual Fine-tuning
 - **Duration**: 85-100% of total epochs
 - **Synthetic Ratio**: Up to 90%
 - **Batch Size**: 2
@@ -166,4 +167,4 @@ This document is updated when:
 ## Contact
 For questions about data sources or processing methodology, please use the GitHub Issues system.
 
-Last Updated: February 2024 
+Last Updated: February 2025 

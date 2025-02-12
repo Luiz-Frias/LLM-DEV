@@ -1,6 +1,7 @@
 import logging
 import os
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader
 from transformers import (
@@ -53,6 +54,26 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 class RLTrainer:
+    @staticmethod
+    def quantize_to_float8(tensor: torch.Tensor) -> dict:
+        """
+        Simulate float8 quantization via symmetric linear quantization.
+        Returns a dictionary with:
+          - "q": Quantized tensor (torch.int8)
+          - "scale": Scaling factor (float)
+        """
+        max_val = tensor.abs().max()
+        scale = max_val / 127.0 if max_val > 0 else 1.0
+        q = torch.round(tensor / scale).clamp(-128, 127).to(torch.int8)
+        return {"q": q, "scale": scale}
+
+    @staticmethod
+    def dequantize_from_float8(qdict: dict) -> torch.Tensor:
+        """
+        Dequantize the simulated float8 representation back to float tensor.
+        """
+        return qdict["q"].float() * qdict["scale"]
+
     def __init__(
         self,
         model: "AutoModelForCausalLM",
@@ -172,6 +193,32 @@ class RLTrainer:
             "total_memory": [],
             "mps_memory": []
         }
+        
+        # Initialize dendritic layer for gradient refinement
+        class DendriticLayer(nn.Module):
+            def __init__(self, hidden_size: int, dropout: float = 0.1):
+                super().__init__()
+                self.linear = nn.Linear(hidden_size, hidden_size)
+                self.dropout = nn.Dropout(dropout)
+                self.scale = nn.Parameter(torch.ones(1))
+            
+            def forward(self, x: torch.Tensor) -> torch.Tensor:
+                out = self.linear(x)
+                out = F.relu(out)
+                out = self.dropout(out)
+                out = self.scale * out
+                return x + out  # Residual connection
+        
+        self.dendritic_layer = DendriticLayer(
+            hidden_size=model.config.hidden_size,
+            dropout=config.get("dendritic_dropout", 0.1)
+        ).to(device)
+        
+        # Initialize dendritic optimizer
+        self.dendritic_optimizer = torch.optim.Adam(
+            self.dendritic_layer.parameters(),
+            lr=config.get("dendritic_lr", 1e-4)
+        )
     
     def setup_schedulers(self):
         """Setup learning rate schedulers after dataloaders are set."""
@@ -375,46 +422,51 @@ class RLTrainer:
         
         return total_loss, metrics
     
+    def offload_gradients_to_disk(self, epoch: int, batch_idx: int) -> dict:
+        """
+        Offload gradients to external SSD drive to save memory.
+        Returns a dictionary mapping parameter names to their gradient file paths.
+        """
+        # Create epoch directory if it doesn't exist
+        grad_dir = f"/Volumes/PortableSSD/offload_gradients/epoch_{epoch}"
+        os.makedirs(grad_dir, exist_ok=True)
+        
+        gradient_files = {}
+        
+        # Save each parameter's gradient to disk
+        for name, param in self.model.named_parameters():
+            if param.grad is not None:
+                # Move gradient to CPU and detach
+                grad_cpu = param.grad.detach().cpu()
+                
+                # Quantize to float8 representation
+                quantized = self.quantize_to_float8(grad_cpu)
+                
+                # Create a safe filename (replace dots and slashes)
+                safe_name = name.replace('.', '_').replace('/', '_')
+                grad_file = os.path.join(grad_dir, f"{safe_name}_batch_{batch_idx}.pt")
+                
+                # Save quantized gradient tensor
+                torch.save(quantized, grad_file)
+                gradient_files[name] = grad_file
+                
+                # Clear gradient from GPU memory
+                param.grad = None
+        
+        return gradient_files
+
     def train_epoch(self, epoch: int):
-        """Train for one epoch with dynamic learning rate adjustment."""
+        """Train for one epoch with gradient offloading to disk."""
         self.model.train()
         self.policy_net.train()
         self.value_net.train()
         
-        # Reset batch counter at start of epoch
+        # Initialize batch counter and memory tracking
         self.batch_counter = 0
-        
-        # Initialize reward tracking for dynamic LR adjustment
-        reward_ema = 0.0
-        ema_alpha = 0.1  # EMA decay rate
-        base_lr = self.lm_optimizer.param_groups[0]['lr']
-        min_lr = base_lr * 0.1
-        max_lr = base_lr * 2.0
-        
-        # Update dataset epoch counter and manage synthetic data
-        if isinstance(self.train_dataset, EfficientDataset):
-            self.train_dataset.update_epoch(epoch)
-        
-        # Reset batch size warmup for the new epoch
-        if hasattr(self.train_dataloader.batch_sampler, 'reset_warmup'):
-            self.train_dataloader.batch_sampler.reset_warmup()
-        
-        total_metrics = {}
-        num_batches = len(self.train_dataloader)
-        log_interval = max(1, num_batches // 10)
-        
-        logger.info(f"\nEpoch {epoch+1}/{self.n_epochs}")
-        logger.info("-" * 50)
-        
-        # Track memory usage and batch sizes
-        start_memory = psutil.Process().memory_info().rss / 1024 / 1024  # MB
-        start_time = time.time()
-        batch_sizes = []
         memory_usage = []
         
-        # Initialize CPU accumulators for gradients and a counter for batches
-        grad_accumulators = {name: None for name, _ in self.model.named_parameters()}
-        batch_count = 0
+        # Dictionary to store gradient file paths for each parameter across batches
+        epoch_gradients = {}
         
         progress_bar = tqdm(self.train_dataloader, desc=f"Epoch {epoch+1}")
         for batch_idx, batch in enumerate(progress_bar):
@@ -423,92 +475,71 @@ class RLTrainer:
             
             # Track batch size and memory
             current_batch_size = len(batch["input_ids"])
-            batch_sizes.append(current_batch_size)
             current_memory = psutil.Process().memory_info().rss / 1024 / 1024
             memory_usage.append(current_memory)
             
             # Compute loss and metrics
             loss, metrics = self._compute_loss(batch, train=True)
             
-            # Update reward EMA for dynamic LR adjustment
-            current_reward = metrics.get('reward', 0.0)
-            reward_ema = ema_alpha * current_reward + (1 - ema_alpha) * reward_ema
+            # Backward pass
+            loss.backward()
             
-            # Adjust learning rate based on reward trend
-            reward_ratio = max(0.1, min(2.0, (current_reward / (reward_ema + 1e-8))))
-            adjusted_lr = min(max(base_lr * reward_ratio, min_lr), max_lr)
+            # Offload gradients to disk and get file paths
+            batch_gradient_files = self.offload_gradients_to_disk(epoch, batch_idx)
             
-            # Update learning rates
-            for param_group in self.lm_optimizer.param_groups:
-                param_group['lr'] = adjusted_lr
-            for param_group in self.rl_optimizer.param_groups:
-                param_group['lr'] = adjusted_lr * (self.config['rl_learning_rate'] / self.config['learning_rate'])
-            
-            # Accumulate gradients on CPU
-            for name, param in self.model.named_parameters():
-                if param.grad is not None:
-                    grad_cpu = param.grad.detach().cpu()
-                    if grad_accumulators[name] is None:
-                        grad_accumulators[name] = grad_cpu.clone()
-                    else:
-                        grad_accumulators[name] += grad_cpu
-            
-            # Clear gradients to free memory on MPS device
-            self.model.zero_grad()
-            
-            # Step memory optimizer
-            self.memory_optimizer.step()
-            
-            # Get memory stats for logging
-            if self.batch_counter % 50 == 0:  # Log every 50 batches
-                memory_stats = self.memory_optimizer.get_memory_stats()
-                
-                # Log memory stats to wandb
-                if self.config.get("use_wandb", True):
-                    wandb.log({
-                        "memory/system_used": memory_stats['system_used'],
-                        "memory/process_rss": memory_stats['process_rss'],
-                        "memory/fragmentation": memory_stats['fragmentation'],
-                        **({"memory/mps_allocated": memory_stats['mps_allocated']} 
-                           if 'mps_allocated' in memory_stats else {})
-                    }, step=self.batch_counter)
-            
-            # Update metrics
-            metrics['learning_rate'] = adjusted_lr
-            metrics['reward_ema'] = reward_ema
-            for k, v in metrics.items():
-                total_metrics[k] = total_metrics.get(k, 0) + v
+            # Store gradient file paths
+            for name, file_path in batch_gradient_files.items():
+                if name not in epoch_gradients:
+                    epoch_gradients[name] = []
+                epoch_gradients[name].append(file_path)
             
             # Update progress bar
-            avg_metrics = {k: v / (batch_idx + 1) for k, v in total_metrics.items()}
             progress_bar.set_postfix(
-                loss=avg_metrics["lm_loss"],
-                reward=avg_metrics["reward"],
-                lr=adjusted_lr,
-                batch_size=current_batch_size,
+                loss=loss.item(),
                 memory_mb=f"{current_memory:.0f}"
             )
-            
-            # Log to wandb
-            if self.config.get("use_wandb", True) and (batch_idx + 1) % log_interval == 0:
-                wandb.log({
-                    "epoch": epoch,
-                    "batch": batch_idx,
-                    "learning_rate": adjusted_lr,
-                    "reward_ema": reward_ema,
-                    **metrics,
-                    "batch_size": current_batch_size,
-                    "memory_usage_mb": current_memory,
-                    "effective_batch_size": current_batch_size * self.gradient_accumulation_steps
-                })
         
-        # End of epoch processing: Average the accumulated gradients and apply updates
+        # End of epoch: Load and average gradients incrementally to reduce memory usage
+        logger.info("Loading and averaging gradients from disk...")
         for name, param in self.model.named_parameters():
-            if grad_accumulators[name] is not None:
-                avg_grad = grad_accumulators[name] / batch_count
-                param.grad = avg_grad.to(param.device)
+            if name in epoch_gradients:
+                grad_files = epoch_gradients[name]
+
+                # Compute incremental average
+                running_avg = None
+                count = 0
+                for grad_file in grad_files:
+                    qdict = torch.load(grad_file)
+                    grad = RLTrainer.dequantize_from_float8(qdict)
+                    count += 1
+                    if running_avg is None:
+                        running_avg = grad
+                    else:
+                        running_avg = running_avg + (grad - running_avg) / count
+                    os.remove(grad_file)
+                avg_grad = running_avg
+
+                # Apply dendritic refinement only if gradient shape matches hidden size
+                if hasattr(self, "dendritic_layer") and self.dendritic_layer is not None:
+                    # Check if gradient tensor's last dimension matches hidden size
+                    if len(avg_grad.shape) == 2 and avg_grad.shape[-1] == self.model.config.hidden_size:
+                        refined_grad = self.dendritic_layer(avg_grad.to(param.device))
+                        param.grad = refined_grad
+                    else:
+                        # For other parameters (biases, etc.), assign averaged gradient directly
+                        param.grad = avg_grad.to(param.device)
+                else:
+                    param.grad = avg_grad.to(param.device)
         
-        # Update model parameters using the aggregated gradients
+        # Save checkpoint after gradient averaging but before optimizer step
+        logger.info("Saving checkpoint after gradient averaging...")
+        self.save_checkpoint(
+            epoch=epoch,
+            val_loss=float('inf'),  # temporary value since we haven't evaluated
+            checkpoint_name=f"post_gradient_averaging_epoch_{epoch}.pt"
+        )
+        
+        # Update model parameters using the averaged gradients
         self.lm_optimizer.step()
         self.rl_optimizer.step()
         self.lm_scheduler.step()
@@ -516,20 +547,11 @@ class RLTrainer:
         self.lm_optimizer.zero_grad()
         self.rl_optimizer.zero_grad()
         
-        # Log final memory usage and batch size statistics
+        # Log memory usage statistics
         end_memory = psutil.Process().memory_info().rss / 1024 / 1024
-        memory_change = end_memory - start_memory
+        logger.info(f"\nFinal memory usage: {end_memory:.1f}MB")
         
-        logger.info("\nBatch size statistics:")
-        logger.info(f"  Mean: {np.mean(batch_sizes):.1f}")
-        logger.info(f"  Min: {np.min(batch_sizes)}")
-        logger.info(f"  Max: {np.max(batch_sizes)}")
-        logger.info(f"  Std: {np.std(batch_sizes):.1f}")
-        logger.info(f"\nMemory change during epoch: {memory_change:.1f}MB")
-        logger.info(f"Final learning rate: {adjusted_lr:.2e}")
-        logger.info(f"Final reward EMA: {reward_ema:.3f}")
-        
-        return avg_metrics
+        return metrics
     
     def evaluate(self):
         """Evaluate the model on the validation set."""

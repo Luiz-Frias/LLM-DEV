@@ -54,4 +54,4 @@ We reserve the right to update this legal document to reflect:
 ## Contact for Legal Matters
 For legal inquiries, please contact the maintainers through GitHub Issues or directly at [your contact information].
 
-Last Updated: February 2024 
+Last Updated: February 2025 

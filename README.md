@@ -1,23 +1,23 @@
 # Promethean Context Engine
 
-This repository implements a memory-efficient training pipeline optimized for running GPT-2 on Apple Silicon M2 devices with 8GB RAM. Our implementation features Selective State Space Models (SSSM), hierarchical memory trees, and advanced adaptive memory components to ensure efficient training and inference under strict memory constraints.
+A memory-efficient language model that brings advanced AI capabilities to resource-constrained environments. Like its namesake Prometheus who brought fire to humanity, this engine brings large language model capabilities to devices with limited memory through innovative memory management and contextual understanding.
 
 ## Key Features
 
-### 1. Advanced Memory Architecture
-- **Selective State Space Model (SSSM)**: Continuous-time state space modeling with selective updates
+### 1. Promethean Memory Architecture
+- **Selective State Space Model (SSSM)**: Foresight-driven state space modeling with selective updates
 - **Hierarchical Memory Tree**: Efficient O(log n) operations with adaptive splitting
-- **Monolith Intake System**: Memory-aware batch processing with salience filtering
+- **Monolith Intake System**: Memory-aware batch processing with predictive filtering
 - **Memory-Mapped Caching**: Efficient disk-based data streaming
 
-### 2. Memory Optimizations
+### 2. Resource Optimization
 - Mixed precision training (float16)
 - Device-aware tensor placement
 - Dynamic batch sizing (max 2)
 - Gradient accumulation (4 steps)
 
-### 3. Training Curriculum
-- Phase 1: C4 dataset for general language understanding
+### 3. Adaptive Learning
+- Phase 1: C4 dataset for foundational understanding
 - Phase 2: Chain-of-Thought fine-tuning with GSM8K and StrategyQA
 - Synthetic data integration with adaptive ratios
 
@@ -26,7 +26,7 @@ This repository implements a memory-efficient training pipeline optimized for ru
 ### Memory Components
 
 #### 1. Selective State Space Model (SSSM)
-- State space parameter optimization
+- Predictive state space optimization
 - Selective update gating
 - Spike-based memory updates
 - Continuous-time dynamics
@@ -181,8 +181,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Citation
 
 ```bibtex
-@software{memory_efficient_gpt2_sssm,
-  title={Memory-Efficient GPT-2 Implementation with SSSM},
+@software{promethean_context_engine,
+  title={Promethean Context Engine: Memory-Efficient LLM Implementation},
   author={Luiz Frias},
   year={2025},
   url={https://github.com/Luiz-Frias/LLM-Dev}

@@ -1,44 +1,47 @@
-# Model Card: Memory-Efficient GPT-2 with SSSM
+# Model Card: Promethean Context Engine
 
-## Model Overview
-- **Base Model**: GPT-2 (small variant)
+## Overview
+Like its namesake who brought fire to humanity, the Promethean Context Engine brings advanced language model capabilities to resource-constrained environments through innovative memory management and contextual understanding. Built on GPT-2's architecture but reimagined for efficiency, it demonstrates that sophisticated AI can thrive even with limited resources.
+
+### Core Specifications
+- **Base Architecture**: GPT-2 (small variant)
 - **Parameters**: 124M
 - **Target Hardware**: Apple Silicon M2 with 8GB RAM
-- **Primary Focus**: Memory-efficient training and inference with advanced memory components
+- **Primary Focus**: Memory-efficient training and inference with advanced adaptive components
 - **License**: MIT
 
-## Architecture Details
+## Architectural Innovation
 
-### Base Architecture
+### Foundation
 - GPT-2 small configuration
 - 12 attention heads
 - 768 hidden dimension
 - 50,257 vocabulary size
 - Mixed precision training (float16)
 
-### Memory Optimizations
+### Promethean Memory Systems
 1. **Selective State Space Model (SSSM)**
-   - Continuous-time state space modeling
-   - Selective update mechanism
-   - Spike-based thresholding
+   - Foresight-driven state space modeling
+   - Predictive update mechanism
+   - Adaptive spike-based thresholding
    - Efficient state tracking
 
 2. **Hierarchical Memory Tree**
-   - Adaptive node splitting
+   - Predictive node splitting
    - O(log n) operations
-   - Predictive load balancing
-   - Automatic rebalancing
+   - Adaptive load balancing
+   - Dynamic rebalancing
 
 3. **Monolith Intake System**
-   - Efficient batch processing
+   - Predictive batch processing
    - Salience-based filtering
    - Type-safe operations
-   - Memory-aware batching
+   - Resource-aware batching
 
-4. **Memory Management**
+4. **Resource Management**
    - Float16 precision tensors
-   - Device-aware placement
-   - Automatic garbage collection
+   - Predictive device placement
+   - Intelligent garbage collection
    - Memory-mapped caching
 
 ## Hardware Requirements
@@ -49,7 +52,7 @@
 - macOS Sonoma or newer
 - 512GB SSD (recommended)
 
-### Memory Usage
+### Resource Utilization
 - Model Parameters: ~500MB
 - Training Peak: ~7GB RAM
 - Inference Peak: 2-3GB RAM
@@ -57,14 +60,14 @@
 
 ## Performance Characteristics
 
-### Training
+### Training Efficiency
 - **Batch Size**: 2 (hard cap)
 - **Gradient Accumulation**: 4 steps
 - **Learning Rate**: 2e-5 to 5e-5
 - **Sequence Length**: 512 tokens
 - **Training Time**: ~24 hours on M2
 
-### Inference
+### Inference Capabilities
 - **Latency**: 50-100ms per generation
 - **Memory Usage**: 2-3GB RAM
 - **Throughput**: 10-20 requests/second
@@ -73,65 +76,65 @@
 ## Memory Management Features
 
 ### 1. SSSM Integration
-- State space parameter optimization
+- Predictive state space optimization
 - Selective update gating
-- Spike-based memory updates
+- Adaptive spike-based updates
 - Continuous-time dynamics
 
 ### 2. Hierarchical Memory
-- Adaptive tree structure
+- Predictive tree structure
 - Efficient node operations
-- Predictive load metrics
-- Automatic pruning
+- Adaptive load metrics
+- Intelligent pruning
 
 ### 3. Caching Strategy
 - Memory-mapped datasets
-- Efficient streaming
+- Predictive streaming
 - Salience-based retention
 - Dynamic cache sizing
 
 ## Known Limitations
 
-1. **Hardware Constraints**
+1. **Resource Constraints**
    - 8GB RAM ceiling
-   - Limited by unified memory
+   - Unified memory limitations
    - Batch size restrictions
-   - MPS backend limitations
+   - MPS backend constraints
 
-2. **Training Constraints**
+2. **Training Boundaries**
    - Maximum batch size of 2
    - Fixed sequence length
    - Limited model size options
    - Memory-speed tradeoffs
 
-3. **Inference Limitations**
+3. **Inference Constraints**
    - Context window restrictions
    - Memory-bound generation
    - Limited parallel processing
-   - Device-specific constraints
+   - Device-specific optimizations
 
 ## Future Development
 
-### Short-term Improvements
+### Short-term Enhancements
 1. **Memory Efficiency**
    - Enhanced SSSM parameters
-   - Better tree rebalancing
+   - Predictive tree rebalancing
    - Improved cache utilization
    - Reduced fragmentation
 
 2. **Performance**
    - Optimized state tracking
    - Faster token generation
-   - Better MPS utilization
+   - Enhanced MPS utilization
    - Reduced memory overhead
 
 3. **Training Stability**
    - Improved memory monitoring
-   - Better error handling
-   - Enhanced numerical stability
+   - Enhanced error handling
+   - Better numerical stability
    - Robust checkpointing
 
-### Long-term Goals
+### Long-term Vision
 1. **Model Scaling**
    - Support for larger variants
    - Enhanced memory efficiency
@@ -227,10 +230,10 @@ train_config = {
 ## Citation
 
 ```bibtex
-@software{memory_efficient_gpt2_sssm,
-  title={Memory-Efficient GPT-2 Implementation with SSSM},
+@software{promethean_context_engine,
+  title={Promethean Context Engine: Bringing Advanced Language Capabilities to Resource-Constrained Environments},
   author={Luiz Frias},
-  year={2024},
+  year={2025},
   url={https://github.com/Luiz-Frias/LLM-Dev}
 }
 ```
