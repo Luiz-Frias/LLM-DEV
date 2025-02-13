@@ -10,6 +10,7 @@ from multiprocessing import cpu_count
 from .synthetic_data import SyntheticDataGenerator, integrate_synthetic_data
 import os
 import psutil
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -100,6 +101,14 @@ class EfficientDataset(Dataset):
                 max_thinking_steps=config.max_thinking_steps,
                 max_length=config.max_length
             )
+        
+        # Add backoff parameters
+        self.initial_backoff = 1.0  # Start with 1 second
+        self.max_backoff = 60.0     # Max wait of 60 seconds
+        self.backoff_factor = 2.0   # Double the wait time after each failure
+        self.current_backoff = self.initial_backoff
+        self.consecutive_failures = 0
+        self.max_retries = 5
         
         # Load initial batch into cache
         self._fill_cache()
@@ -205,21 +214,55 @@ class EfficientDataset(Dataset):
         
         return processed_examples
     
+    def _get_next_example_with_backoff(self) -> Optional[Dict]:
+        """Get next example with exponential backoff for throttling."""
+        for attempt in range(self.max_retries):
+            try:
+                example = self._get_next_example()
+                
+                # Success - reset backoff
+                if self.current_backoff > self.initial_backoff:
+                    logger.info("API throttling resolved, resetting backoff")
+                self.current_backoff = self.initial_backoff
+                self.consecutive_failures = 0
+                
+                return example
+                
+            except Exception as e:
+                self.consecutive_failures += 1
+                
+                # Check if error suggests throttling
+                if "rate" in str(e).lower() or "limit" in str(e).lower() or "too many requests" in str(e).lower():
+                    wait_time = min(self.current_backoff * (self.backoff_factor ** self.consecutive_failures), 
+                                  self.max_backoff)
+                    
+                    logger.warning(f"Detected API throttling. Backing off for {wait_time:.1f}s. "
+                                 f"Attempt {attempt + 1}/{self.max_retries}")
+                    
+                    time.sleep(wait_time)
+                    self.current_backoff = wait_time
+                else:
+                    # Different error - don't apply backoff
+                    logger.error(f"Error fetching example: {str(e)}")
+                    if attempt == self.max_retries - 1:
+                        raise
+        
+        return None
+    
     def _fill_cache(self):
         """Fill the cache with processed examples."""
         logger.info("Filling dataset cache...")
         
         raw_examples = []
-        for _ in range(self.cache_size):
-            try:
-                example = self._get_next_example()
-                if self.config.text_column in example:
-                    raw_examples.append(example)
-                if len(raw_examples) >= self.cache_size:
-                    break
-            except StopIteration:
-                logger.warning("Dataset iterator exhausted, restarting from beginning")
+        
+        # Fill cache with backoff mechanism
+        while len(raw_examples) < self.cache_size:
+            example = self._get_next_example_with_backoff()
+            if example is None:
                 break
+                
+            if self.config.text_column in example:
+                raw_examples.append(example)
         
         if not raw_examples:
             raise RuntimeError("No valid examples found in dataset")
