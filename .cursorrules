@@ -333,6 +333,350 @@ This document should be treated as living guidance that evolves with project exp
 2. Add new patterns and principles as they emerge from development
 3. Refine existing guidelines based on real-world effectiveness
 4. Share insights and improvements across all team members
+5. Document the reasoning behind major guideline changes
+
+// ========== PROJECT-SPECIFIC RULES BELOW (DO NOT DELETE THIS LINE) ==========
+
+// Add your project-specific rules below this line 
+// ========== PROJECT-SPECIFIC RULES BELOW (DO NOT DELETE THIS LINE) ==========
+
+// Existing project rules preserved below
+
+# MASTER CURSOR RULES
+
+## NON-NEGOTIABLE RULES
+- **NO QUICK FIXES OR WORKAROUNDS OR PATCHES; SOLVE FOR ROOT OF ISSUES**
+- **ALWAYS SEARCH DIRECTORIES FOR EXISTING FILES BEFORE CREATING NEW ONES**
+
+## GENERAL PRINCIPLES
+
+### KISS (Keep It Simple, Stupid)
+- Prefer simple solutions over complex ones
+- Minimize dependencies - only add what's truly needed
+- Write modular and focused code that does one thing well
+- Choose established patterns over novel approaches unless clearly beneficial
+
+### DRY (Don't Repeat Yourself)
+- Extract repeated code into reusable functions/methods
+- Create shared utilities for common operations
+- Use inheritance and composition appropriately
+- Maintain single sources of truth for data and business logic
+
+### SOLID Principles
+- **S**ingle Responsibility: Each class/module should have only one reason to change
+- **O**pen/Closed: Open for extension, closed for modification
+- **L**iskov Substitution: Subtypes must be substitutable for their base types
+- **I**nterface Segregation: Many specific interfaces are better than one general interface
+- **D**ependency Inversion: Depend on abstractions, not concretions
+
+### Systems Thinking Approach
+- Consider how components interact rather than focusing on isolated parts
+- Identify feedback loops and address them in your architecture
+- Anticipate how changes in one area might impact seemingly unrelated areas
+- Design with resilience to handle unexpected edge cases and failures
+- Document system dependencies and interfaces between components
+
+### First Principles Approach
+- Break down complex problems to their fundamental truths
+- Question assumptions and challenge conventional solutions
+- Solve for root issues, not patches or quick fixes
+- Build solutions from the ground up based on verified fundamentals
+- Test your understanding by explaining concepts in simple terms
+
+### Communication
+- At the end of each implementation, provide a clear explanation that covers:
+  1. What broke and why
+  2. How the solution addresses each specific issue
+  3. The underlying technical principles that explain the behavior
+- Document decisions, including alternatives considered and reasons for rejection
+- Use clear, consistent terminology across all communications
+- Tailor explanations to the audience's technical understanding
+- Proactively share knowledge about challenging areas of the codebase
+
+## DESIGN PRINCIPLES
+
+### Security-First Development
+- **Data Protection**: Always use secure storage for sensitive data
+- **Encryption**: Implement proper encryption for sensitive data both at rest and in transit
+- **Secure Communication**: Use HTTPS for all API communications with appropriate security measures
+- **Input Validation**: Always validate user input and external data before processing
+- **Error Handling**: Implement comprehensive error handling for security operations
+- **Least Privilege**: Request only the permissions your application absolutely needs
+- **Secure Defaults**: Configure security features with secure defaults that don't require user intervention
+
+### User-Centric Design
+- **Clear User Choices**: Design interfaces with clear, unambiguous labels and outcomes
+- **Response Context**: Maintain enough context to make choices meaningful
+- **Privacy Considerations**: Avoid showing sensitive information in previews
+- **Fallback Mechanisms**: Always provide degraded but functional experience when premium features aren't available
+- **Interactive Feedback**: Provide immediate feedback when users interact with interfaces
+- **Response Handling**: Design robust systems for processing and persisting user responses
+
+### Progressive Enhancement Architecture
+- **Core Functionality First**: Build essential features that work for all users before adding enhancements
+- **Modular Design**: Create self-contained modules that can be enabled/disabled based on conditions
+- **Feature Detection**: Check for feature availability at runtime rather than compile time
+- **Graceful Degradation**: Ensure applications function acceptably when premium features are unavailable
+- **Clear Upgrade Paths**: Show users what additional features they gain by upgrading
+- **State Preservation**: Maintain user preferences and state across changes
+
+### Responsive Interaction Design
+- **Immediate Feedback**: Provide visual feedback immediately after user actions
+- **Async Operation Indicators**: Show loading indicators for operations that take time
+- **Error Recovery**: Design interfaces that help users recover from errors
+- **Appropriate Animation**: Use animations to clarify transitions and relationships
+- **Accessibility Support**: Ensure all interactions work well with assistive technologies
+- **Adaptable Layouts**: Design interfaces that adapt to different device sizes and orientations
+- **Input Forgiving**: Be tolerant of minor user input errors and provide correction suggestions
+- **Operation Cancellation**: Allow users to cancel long-running operations
+
+## DEVELOPMENT PRINCIPLES
+
+### Component Modularity
+- **Single-Purpose Components**: Design classes and modules with clear, focused responsibilities
+- **Interface Segregation**: Create narrow, purpose-specific interfaces rather than general-purpose ones
+- **Dependency Injection**: Pass dependencies explicitly rather than hardcoding them
+- **Composable Design**: Build small, reusable components that can be combined for complex functionality
+- **Testable Boundaries**: Create clear boundaries between components to facilitate unit testing
+- **State Isolation**: Contain state within components rather than using global state
+- **Event-Based Communication**: Use delegation patterns and notifications for loose coupling
+- **Clean APIs**: Design intuitive, well-documented APIs for all reusable components
+
+### Efficient Resource Management
+- **Battery/Resource Awareness**: Minimize operations to preserve system resources
+- **Memory Optimization**: Properly manage object lifecycles to avoid memory leaks
+- **Resource Cleanup**: Release resources promptly when no longer needed
+- **Background Task Management**: Use proper APIs for background execution with completion handlers
+- **Caching Strategy**: Implement appropriate caching for responses and expensive computations
+- **Cold Start Optimization**: Minimize initialization code for faster application startup
+- **Lazy Loading**: Defer resource-intensive operations until needed
+- **Bandwidth Consciousness**: Minimize data transfer and compress data when appropriate
+
+### Comprehensive Test Coverage
+- **Unit Test Foundation**: Write unit tests for all business logic and utility functions
+- **Mocking External Dependencies**: Create mock implementations of external services for testing
+- **UI Testing**: Implement UI tests for critical user flows
+- **Edge Case Coverage**: Test boundary conditions and unusual inputs
+- **Error Path Testing**: Verify appropriate behavior when errors occur
+- **Performance Testing**: Benchmark performance-critical operations
+- **Memory Testing**: Check for memory leaks
+- **Integration Testing**: Test integration points between components
+- **Regression Testing**: Run full test suite before releases to catch regressions
+
+### Pragmatic Code Organization
+- **Feature-Based Structure**: Organize code by feature rather than by type
+- **Consistent Naming**: Use clear, consistent naming conventions for all code elements
+- **Self-Documenting Code**: Write code that clearly expresses intent without extensive comments
+- **Appropriate Abstraction**: Create abstractions only when they provide clear benefits
+- **Code Locality**: Keep related code close together
+- **Manageable File Size**: Keep files to a reasonable size
+- **Clear Control Flow**: Use guard clauses and early returns for simplified control flow
+- **Minimal Nesting**: Avoid deeply nested code structures
+
+### Error Handling
+- **Never silently swallow exceptions**
+- **Log errors with appropriate context**
+- **Return meaningful error messages to users**
+- **Fail fast when detecting invalid states**
+- **Use structured error responses for APIs**
+
+### Performance Optimization
+- **Profile code regularly to identify bottlenecks**
+- **Optimize critical paths for speed and resource usage**
+- **Use pagination for large data sets**
+- **Implement caching where appropriate**
+- **Minimize network requests and payload sizes**
+
+## LANGUAGE-SPECIFIC PRINCIPLES
+
+### Swift Development
+- Use latest Swift version for all iOS development
+- Prefer SwiftUI for new UI components where appropriate
+- Follow Apple's Swift API Design Guidelines
+- Use UIKit for compatibility with older iOS versions when needed
+- Minimize use of Objective-C bridging
+- Use type hints throughout the codebase
+- Implement proper error handling with custom exception classes
+- Use MVVM architecture for view controllers
+
+### JavaScript/TypeScript Development
+- Use TypeScript for stronger type safety
+- Follow functional programming paradigms where appropriate
+- Implement proper error handling and logging
+- Use async/await pattern for asynchronous code
+- Write pure functions when possible
+- Organize code by feature, not by type
+- Use dependency injection for services
+- Extract business logic into separate service classes
+
+### Python Development
+- Target Python 3.8+ compatibility
+- Use type hints throughout the codebase
+- Follow PEP 8 style guidelines
+- Implement proper error handling with custom exception classes
+- Use context managers for resource management
+- Implement a clean public API with well-documented interfaces
+- Hide implementation details behind proper abstraction
+- Use composition over inheritance
+- Create intuitive error messages and exceptions
+- Follow the principle of least surprise in API design
+
+## ARCHITECTURAL/SYSTEM DESIGN PRINCIPLES
+
+### Serverless Architecture Principles
+- **Build vs. Runtime Awareness**: Recognize that build-time and runtime environments are separate
+- **Phase-Based Deployment**: Structure code to account for the distinct phases of serverless deployment
+- **Dependency Resolution**: Ensure critical dependencies are explicitly available when needed
+- **Function Isolation**: Design with the understanding that each serverless function deploys as an isolated unit
+- **Defensive Module Resolution**: Implement fallback mechanisms for essential dependencies
+- **Cold Start Optimization**: Minimize initialization code to reduce latency
+- **Stateless Design**: Assume functions have no persistent local state between invocations
+- **Error Resilience**: Add comprehensive error handling for ephemeral execution environments
+
+### Package Resolution Management
+- **Configuration Consistency**: Never use conflicting strategies for the same package
+- **Dual Import Strategy**: Use type-only imports for build-time and dynamic imports for runtime
+- **Progressive Enhancement**: Start with minimal dependency configurations, then address specific issues
+- **Framework-Specific Patterns**: Learn and follow the specific module resolution patterns of your framework
+- **Multi-Phase Testing**: Test builds across different environments to identify issues early
+- **Defensive Module Mocking**: Create lightweight mock implementations of critical dependencies
+- **Resolution Debugging**: Add explicit logging of module paths to diagnose issues
+
+### Authentication State Management
+- **Centralized Auth State**: Maintain a single source of truth for authentication state
+- **Token Lifecycle Tracking**: Implement comprehensive token lifecycle management
+- **Seamless Re-authentication**: Provide graceful re-authentication flows when tokens expire
+- **Auth State Propagation**: Broadcast authentication state changes to dependent components
+- **Request Queue Management**: Queue non-critical API requests during authentication transitions
+- **Persistent Session Handling**: Properly persist and restore authentication sessions across restarts
+- **Auth Failure Recovery**: Implement smart recovery strategies for authentication failures
+- **Contextual Login Prompts**: Show authentication requests only in appropriate contexts
+
+### Database Management
+- Use appropriate ORM for database operations
+- Prefer relational databases for relational data needs
+- Implement proper indexing for frequently queried fields
+- Use migrations for all schema changes
+- Enforce referential integrity at the database level
+- Organize routes by resource and functionality
+- Implement middleware for cross-cutting concerns
+- Separate business logic from API handlers
+- Use proper HTTP status codes and response formats
+- Validate all inputs at the API boundary
+
+## DOCUMENTATION PRACTICES
+
+### Code Documentation
+- Document all public APIs with clear examples
+- Keep documentation close to code (use inline comments)
+- Write README files for each major component
+- Use diagrams for complex architectures
+- Update documentation when code changes
+- Use meaningful commit messages that explain why, not just what
+
+### Project Documentation
+- Maintain up-to-date architecture diagrams
+- Document system dependencies and interfaces
+- Include setup and installation instructions
+- Provide troubleshooting guides for common issues
+- Document environment configuration requirements
+- Keep a changelog for tracking version changes
+- Include deployment procedures and requirements
+- Document testing strategies and tools
+
+## CI/CD PRACTICES
+
+### Continuous Integration
+- Run automated tests on each commit
+- Use linters to enforce code style
+- Perform static code analysis
+- Check for security vulnerabilities in dependencies
+- Require code reviews before merging
+
+### Version Control
+- Write meaningful commit messages that explain why, not just what
+- Keep pull requests small and focused on a single change
+- Use feature branches for all new development
+- Rebase feature branches before merging
+- Never commit secrets or sensitive data
+
+### Monitoring and Maintenance
+- Implement comprehensive logging
+- Set up error tracking and alerting
+- Monitor performance metrics
+- Track API usage and response times
+- Set up uptime monitoring
+
+### Versioning
+- Use semantic versioning for all components
+- Document breaking changes clearly
+- Maintain backward compatibility when possible
+- Provide migration guides for major updates
+- Support multiple versions during transition periods
+
+## SECURITY PRACTICES
+
+### Data Protection
+- Encrypt sensitive data at rest and in transit
+- Use HTTPS for all API communications
+- Implement proper authentication and authorization
+- Sanitize all user inputs to prevent injection attacks
+- Implement rate limiting for public endpoints
+
+### Secret Management
+- Never hardcode secrets in source code
+- Use environment variables for configuration
+- Rotate API keys and secrets regularly
+- Implement proper access controls for secrets
+- Use secure storage for credentials
+
+## ACCESSIBILITY PRACTICES
+
+### UI/UX Design
+- Follow platform-specific design guidelines
+- Ensure color contrast meets WCAG standards
+- Support dynamic text sizes for readability
+- Make all interactions accessible with assistive technologies
+- Test with assistive technologies
+
+## RECENT LEARNINGS
+
+### Notification System Architecture
+- **Layered Security Model**: Implement multi-layered security controls based on sensitivity
+- **Payload Isolation**: Separate metadata from content in payloads to simplify processing
+- **Callback Registration**: Use UUID-based callbacks with automatic cleanup to prevent memory leaks
+- **Context Preservation**: Maintain sufficient context to allow proper handling despite state changes
+- **Graceful Fallbacks**: Implement fallbacks for all features to ensure base functionality remains
+
+### Security Implementation Patterns
+- **Encryption Key Management**: Derive encryption keys rather than storing them directly
+- **Operation Atomicity**: Design security operations to be atomic to prevent partial failures
+- **Explicit Error Cases**: Define specific error types for each security failure mode
+- **Security State Validation**: Validate current security state before performing sensitive operations
+- **Defense in Depth**: Implement multiple complementary security measures
+
+### Serverless Decision Tree Approach
+- Identify the analysis type (static vs. dynamic)
+- Determine isolation boundaries (function-level vs. service-level)
+- Choose compatible resolution strategies based on platform
+- Build defensive validation across environments
+- Implement import-free patterns for problematic dependencies
+
+### StoreKit Integration Patterns
+- Implement comprehensive verification for all possible states
+- Use Swift's type system to enforce proper state handling
+- Store transaction data immediately after verification
+- Model purchase flows as state machines with clear transitions
+- Validate receipts server-side even when client-side verification succeeds
+
+## MAINTAINING AND EVOLVING THESE GUIDELINES
+
+This document should be treated as living guidance that evolves with project experience. Team members should:
+
+1. Periodically review and update these guidelines based on project outcomes
+2. Add new patterns and principles as they emerge from development
+3. Refine existing guidelines based on real-world effectiveness
+4. Share insights and improvements across all team members
 5. Document the reasoning behind major guideline changes 
 
 // TEST CHANGE: This comment is added to trigger the sync process
